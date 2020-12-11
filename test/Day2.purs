@@ -46,4 +46,25 @@ testDay2 = do
             (Day2.ValidationRule 1 3 "a") 
             (Day2.Password "abcde")
       parsed `shouldEqual` equal
-
+  describe "Testing validatePasswordTobbogan" do
+    it "1-3 a: abcde is valid: position 1 contains a and position 3 does not." do
+      let
+        rule = Day2.ValidationRule 1 3 "a"
+        password = Day2.Password "abcde"
+        line = Day2.Line rule password
+        ruleValid = Day2.validatePasswordTobbogan line
+      ruleValid `shouldEqual` true
+    it "1-3 b: cdefg is invalid: neither position 1 nor position 3 contains b" do
+      let
+        rule = Day2.ValidationRule 1 3 "b"
+        password = Day2.Password "cdefg"
+        line = Day2.Line rule password
+        ruleValid = Day2.validatePasswordTobbogan line
+      ruleValid `shouldEqual` false
+    it "2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c" do
+      let
+        rule = Day2.ValidationRule 2 9 "c"
+        password = Day2.Password "ccccccccc"
+        line = Day2.Line rule password
+        ruleValid = Day2.validatePasswordTobbogan line
+      ruleValid `shouldEqual` false

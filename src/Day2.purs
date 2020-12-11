@@ -1,12 +1,15 @@
 module Day2 where
 
+import Debug.Trace
 import Prelude
-import Data.Array               ((!!), head, last, length, filter)
+import Data.Array               ((!!), catMaybes, head, last, length, filter, findIndex, mapWithIndex)
+import Data.Foldable            (elem)
 import Data.Int                 (fromString)
 import Data.Maybe               (Maybe(..), fromMaybe)
 import Data.Newtype             (class Newtype)
 import Data.Generic.Rep         (class Generic)
 import Data.Generic.Rep.Show    (genericShow)
+import Data.String              (indexOf)
 import Data.String.Common       (split, trim, replace)
 import Data.String.Pattern      (Pattern(..), Replacement(..))
 import Data.String.Utils        (lines, toCharArray)
@@ -76,6 +79,20 @@ validatePassword (Line (ValidationRule min max char) (Password pass)) = charInst
       length $ 
         filter (\p -> p == char) $ toCharArray pass
 
+validatePasswordTobbogan :: Line -> Boolean
+validatePasswordTobbogan (Line (ValidationRule min max char) (Password pass)) =  
+  ( not (elemMin && elemMax)) && (elemMin || elemMax)
+  where
+    elemMin = elem min indexes
+    elemMax = elem max indexes
+    indexes = 
+      catMaybes $
+        mapWithIndex 
+          (\ix x -> case (x == char) of
+            true -> Just $ ix + 1
+            false -> Nothing ) 
+          (toCharArray pass)
+
 main :: Effect Unit
 main = do
   passwords <- readTextFile UTF8 "./src/input/day2.txt"
@@ -86,5 +103,13 @@ main = do
       length $
         filter (\x -> x == true) $
           map validatePassword passLines
-  log $ "Number of passwords: " <> (show $ length passArr)
+    validPasswordsTobbogan = 
+      length $
+        filter (\x -> x == true) $
+          map validatePasswordTobbogan passLines
+  log "Part One: "
   log $ "Number of valid passwords: " <> (show validPasswords)
+
+  log "Part Two: "
+  log $ "Number of valid passwords: " <> (show validPasswordsTobbogan)
+
